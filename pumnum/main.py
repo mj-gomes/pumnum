@@ -1,7 +1,3 @@
-import numba
-import inspect
-import ast
-from sympy import symbols
 import unyt
 import functools
 from contextlib import contextmanager
