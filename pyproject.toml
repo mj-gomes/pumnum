@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=82.0.1", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pumnum"
+version = "0.0.1"
+description = "A package that allows to manipulate objects with physical units, using pint or unyt, while using numba functions in no-python mode."
+authors = [
+    {name = "Gomes Miguel", email = "gomes@iap.fr"},
+]
+readme = "README.md"
+license = {text = "GPL-3.0"}
+requires-python = ">=3.12"
+dependencies = [
+    "numba>=0.65.1",
+    "numpy>=1.26.4",
+    "Pip>=0.25.3",
+    "unyt>=3.1.0",
+]

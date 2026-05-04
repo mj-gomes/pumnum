@@ -1,0 +1,9 @@
+README.md
+pyproject.toml
+src/pumnum.py
+src/pumnum.egg-info/PKG-INFO
+src/pumnum.egg-info/SOURCES.txt
+src/pumnum.egg-info/dependency_links.txt
+src/pumnum.egg-info/requires.txt
+src/pumnum.egg-info/top_level.txt
+tests/test_parallel.py
