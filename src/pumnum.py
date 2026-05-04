@@ -3,7 +3,10 @@ from contextlib import contextmanager
 
 import pint
 import unyt
+import astropy.units
 from numba import njit
+
+from backends import BkAstropy, BkPint, BkUnyt
 
 """
 The following functions limit loops to a single iteration.
@@ -51,18 +54,24 @@ def pumnum(_func=None, **njit_kwargs):
         def __init__(*args, **kwargs):
             args_magnitudes = []
             args_units = []
-            for arg in args:
+            for idx, arg in enumerate(args):
                 if isinstance(arg, pint.Quantity):
-                    args_magnitudes.append(arg.magnitude)
+                    backend=BkPint
                 elif isinstance(arg, unyt.array.unyt_quantity):
-                    args_magnitudes.append(arg)
+                    backend=BkUnyt
+                elif isinstance(arg, astropy.units.Quantity):
+                    backend=BkAstropy
                 else:
-                    return
-                args_units.append(1 * arg.units)
+                    raise TypeError(
+                        f"object of type {type(obj).__name__} is not compatible with pumnum; "
+                        "it should be either a pint.Quantity, unyt.array, or astropy.units.Quantity"
+                    )
+                args_magnitudes.append(backend(arg).value)
+                args_units.append(1 * backend(arg).units)
 
             tmp = run_loop_once(func)
             result = tmp(*args_units)
-            final_units = result.units
+            final_units = backend(result).units
             op = njit(**njit_kwargs)(func)
             return op(*args_magnitudes) * final_units
 
