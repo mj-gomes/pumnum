@@ -6,6 +6,7 @@ import unyt
 import functools
 from contextlib import contextmanager
 from numba import njit
+import pint
 
 """
 The following functions limit loops to a single iteration.
@@ -44,13 +45,20 @@ and give it the pre-computed units
 
 def pumnum(func):
     def __init__(*args, **kwargs):
-        quantities = []
+        args_magnitudes = []
+        args_units = []
         for arg in args:
-            quantities.append(1*arg.units)
+            if isinstance(arg, pint.Quantity):
+                args_magnitudes.append(arg.magnitude)
+            elif isinstance(arg, unyt.array.unyt_quantity):
+                args_magnitudes.append(arg)
+            else:
+                return
+            args_units.append(1*arg.units)
 
         tmp = run_loop_once(func)
-        result = tmp(*quantities)
-        units = result.units
+        result = tmp(*args_units)
+        final_units = result.units
         op=numba.njit(func)
-        return op(*args)* units
+        return op(*args_magnitudes) * final_units
     return __init__
