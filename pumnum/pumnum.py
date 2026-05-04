@@ -55,6 +55,6 @@ def pumnum(func):
         tmp = run_loop_once(func)
         result = tmp(*args_units)
         final_units = result.units
-        op=numba.njit(func)
+        op=njit(func)
         return op(*args_magnitudes) * final_units
     return __init__
