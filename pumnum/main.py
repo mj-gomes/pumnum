@@ -42,7 +42,7 @@ final units of the numba jitted function, and then compute it
 and give it the pre-computed units
 """
 
-def pumba(func):
+def pumnum(func):
     def __init__(*args, **kwargs):
         quantities = []
         for arg in args:
