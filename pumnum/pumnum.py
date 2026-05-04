@@ -39,7 +39,7 @@ def run_loop_once(func):
 """"""
 
 """
-Definition of the Numyt decorator, that will first get the
+Definition of the pumnum decorator, that will first get the
 final units of the numba jitted function, and then compute it
 and give it the pre-computed units
 """
