@@ -6,3 +6,4 @@ Current TO-DO list:
 - [ ] make pumnum work for numba jitted nopython functions loops with product/division of physical quantities https://github.com/mj-gomes/pumnum/issues/1
 - [ ] add compatibility with astropy units https://github.com/mj-gomes/pumnum/issues/2
 - [ ] automatically convert units to SI (or other user defined) inside the decorator https://github.com/mj-gomes/pumnum/issues/3
+- [ ] deal with cases where objects of different classes mix in an operation https://github.com/mj-gomes/pumnum/issues/4
