@@ -5,7 +5,7 @@ import pint
 import unyt
 import astropy.units
 from numba import njit
-
+import inspect
 from backends import BkAstropy, BkPint, BkUnyt
 
 """
@@ -47,11 +47,21 @@ final units of the numba jitted function, and then compute it
 and give it the pre-computed units
 """
 
+# gets the set of njit arguments, so that the decorator
+# can separate between those to pass to numba.njit and
+# the ones that are pumnum-specific.
+_NJIT_KEYS = set(inspect.signature(njit).parameters.keys())
 
-def pumnum(_func=None, **njit_kwargs):
+def pumnum(_func=None, **kwargs):
+    njit_kwargs = {k: v for k, v in kwargs.items() if k in _NJIT_KEYS}
+    pumnum_kwargs = {k: v for k, v in kwargs.items() if k not in _NJIT_KEYS}
+
+    # set pumnum kwargs
+    convert_to = pumnum_kwargs.get("convert_to", None)
+
     def decorator(func):
         @functools.wraps(func)
-        def __init__(*args, **kwargs):
+        def __init__(*args):
             args_magnitudes = []
             args_units = []
             for idx, arg in enumerate(args):
@@ -64,16 +74,19 @@ def pumnum(_func=None, **njit_kwargs):
                 else:
                     raise TypeError(
                         f"object of type {type(obj).__name__} is not compatible with pumnum; "
-                        "it should be either a pint.Quantity, unyt.array, or astropy.units.Quantity"
+                        "it should be either a pint.Quantity, unyt.array.unyt_quantity, or astropy.units.Quantity"
                     )
-                args_magnitudes.append(backend(arg).value)
+                args_magnitudes.append(backend(arg).magnitude)
                 args_units.append(1 * backend(arg).units)
 
-            tmp = run_loop_once(func)
-            result = tmp(*args_units)
-            final_units = backend(result).units
+            loop_once = run_loop_once(func)
+            final_units = backend(loop_once(*args_units)).units
             op = njit(**njit_kwargs)(func)
-            return op(*args_magnitudes) * final_units
+            res = op(*args_magnitudes) * final_units
+            if convert_to is not None:
+                return backend(res).convert_to_unit_system(convert_to)
+            else:
+                return res
 
         return __init__
 
